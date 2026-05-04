@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dive Up! — Export PNG</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Barlow+Condensed:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0a;color:#f2f2f2;font-family:'Barlow Condensed',sans-serif;min-height:100vh;padding:2rem 1rem}
+h1{font-family:'Black Ops One',sans-serif;color:#AAFF00;text-align:center;font-size:1.8rem;letter-spacing:.1em;margin-bottom:.3rem;text-shadow:0 0 20px rgba(170,255,0,.4)}
+.sub{text-align:center;color:rgba(242,242,242,.4);font-size:.75rem;letter-spacing:.2em;margin-bottom:2rem}
+
+.icons{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:680px;margin:0 auto}
+
+.card{border:1px solid rgba(170,255,0,.18);border-radius:16px;background:#111;overflow:hidden}
+.preview{height:260px;display:flex;align-items:center;justify-content:center;background:#050505;position:relative}
+.preview canvas{display:none}
+.preview .icon-wrap{display:flex;align-items:center;justify-content:center}
+.label{padding:.9rem 1rem;border-top:1px solid rgba(170,255,0,.12)}
+.label h3{font-size:.7rem;letter-spacing:.22em;color:#AAFF00;margin-bottom:.2rem}
+.label p{font-size:.7rem;color:rgba(242,242,242,.4);line-height:1.4}
+
+.controls{max-width:680px;margin:1.5rem auto 0;display:flex;flex-wrap:wrap;gap:.8rem;align-items:center}
+.ctrl-group{display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:120px}
+.ctrl-group label{font-size:.6rem;letter-spacing:.2em;color:rgba(170,255,0,.6)}
+select,input[type=range]{width:100%;background:#1a1a1a;border:1px solid rgba(170,255,0,.2);color:#f2f2f2;border-radius:8px;padding:.4rem .6rem;font-family:'Barlow Condensed',sans-serif;font-size:.8rem;outline:none}
+input[type=range]{padding:.2rem;accent-color:#AAFF00}
+
+.btns{max-width:680px;margin:1.2rem auto 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem}
+.btn{border:none;border-radius:10px;padding:.75rem 1rem;font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.1em;cursor:pointer;transition:all .2s}
+.btn-dl{background:#AAFF00;color:#050505}
+.btn-dl:hover{background:#c8ff4d;transform:translateY(-2px)}
+.btn-sec{background:rgba(170,255,0,.08);color:#AAFF00;border:1px solid rgba(170,255,0,.25)}
+.btn-sec:hover{background:rgba(170,255,0,.15)}
+
+.size-val{font-size:.7rem;color:#AAFF00;text-align:right;margin-top:.1rem}
+
+canvas#c1,canvas#c2{display:none}
+</style>
+</head>
+<body>
+
+<h1>DIVE UP!</h1>
+
+<div class="icons">
+  <!-- Q1 Átomo -->
+  <div class="card">
+    <div class="preview" id="prev1">
+      <div class="icon-wrap" id="wrap1"></div>
+    </div>
+    <div class="label">
+      <h3>Q1 — ÁTOMO</h3>
+      <p>Estrutura atômica com elétrons em órbita</p>
+    </div>
+  </div>
+
+  <!-- Q3 DNA -->
+  <div class="card">
+    <div class="preview" id="prev2">
+      <div class="icon-wrap" id="wrap2"></div>
+    </div>
+    <div class="label">
+      <h3>Q3 — DNA</h3>
+      <p>Dupla hélice ascendente</p>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="ctrl-group">
+    <label>RESOLUÇÃO</label>
+    <input type="range" id="res" min="512" max="4096" step="512" value="1024" oninput="updRes()">
+    <div class="size-val" id="resVal">1024 × 1024 px</div>
+  </div>
+  <div class="ctrl-group">
+    <label>FUNDO</label>
+    <select id="bg" onchange="renderAll()">
+      <option value="transparent">Transparente</option>
+      <option value="#050505" selected>Preto (#050505)</option>
+      <option value="#ffffff">Branco</option>
+      <option value="#1a1a1a">Cinza escuro</option>
+    </select>
+  </div>
+  <div class="ctrl-group">
+    <label>COR DO ÍCONE</label>
+    <select id="col" onchange="renderAll()">
+      <option value="#AAFF00" selected>Verde Neon</option>
+      <option value="#ffffff">Branco</option>
+      <option value="#000000">Preto</option>
+      <option value="#FF6B00">Laranja</option>
+    </select>
+  </div>
+</div>
+
+<div class="btns">
+  <button class="btn btn-dl" onclick="download(1)">↓ Baixar Q1 PNG</button>
+  <button class="btn btn-dl" onclick="download(2)">↓ Baixar Q3 PNG</button>
+  <button class="btn btn-sec" onclick="download(0)">↓ Baixar Ambos</button>
+</div>
+
+<canvas id="c1"></canvas>
+<canvas id="c2"></canvas>
+
+<script>
+// ─── SVG PATHS ───────────────────────────────────────────────
+function svgAtomo(color, size) {
+  const s = size, h = s/2;
+  const r = s * 0.42, nr = s * 0.07, er = s * 0.042;
+  const or1 = r, or2 = r * 0.4;
+  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" xmlns="http://www.w3.org/2000/svg">
+    <!-- nucleus -->
+    <circle cx="${h}" cy="${h}" r="${nr}" fill="${color}"/>
+    <!-- orbit 1 -->
+    <ellipse cx="${h}" cy="${h}" rx="${or1}" ry="${or2}" stroke="${color}" stroke-width="${s*0.025}" opacity="0.9" fill="none"/>
+    <!-- orbit 2 -->
+    <ellipse cx="${h}" cy="${h}" rx="${or1}" ry="${or2}" stroke="${color}" stroke-width="${s*0.025}" opacity="0.5" fill="none" transform="rotate(60 ${h} ${h})"/>
+    <!-- orbit 3 -->
+    <ellipse cx="${h}" cy="${h}" rx="${or1}" ry="${or2}" stroke="${color}" stroke-width="${s*0.025}" opacity="0.3" fill="none" transform="rotate(120 ${h} ${h})"/>
+    <!-- electrons -->
+    <circle cx="${h+or1}" cy="${h}" r="${er}" fill="${color}"/>
+    <circle cx="${h - or1*0.5}" cy="${h - or2*1.5}" r="${er}" fill="${color}" opacity="0.8"/>
+    <circle cx="${h + or1*0.28}" cy="${h + or2*1.7}" r="${er}" fill="${color}" opacity="0.6"/>
+  </svg>`;
+}
+
+function svgDNA(color, size) {
+  const s = size, h = s/2;
+  const x1 = s*0.14, x2 = s*0.86;
+  const top = s*0.04, bot = s*0.96;
+  const mid = h;
+  // control points for the helices
+  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" xmlns="http://www.w3.org/2000/svg">
+    <!-- strand A -->
+    <path d="M${x1} ${bot} C${x1} ${bot*0.78} ${x2} ${mid*1.38} ${x2} ${mid} C${x2} ${mid*0.62} ${x1} ${top*4.5} ${x1} ${top}"
+      stroke="${color}" stroke-width="${s*0.034}" stroke-linecap="round" fill="none"/>
+    <!-- strand B -->
+    <path d="M${x2} ${bot} C${x2} ${bot*0.78} ${x1} ${mid*1.38} ${x1} ${mid} C${x1} ${mid*0.62} ${x2} ${top*4.5} ${x2} ${top}"
+      stroke="${color}" stroke-width="${s*0.034}" stroke-linecap="round" fill="none" opacity="0.55"/>
+    <!-- rungs -->
+    <line x1="${x1}" y1="${s*0.24}" x2="${x2}" y2="${s*0.24}" stroke="${color}" stroke-width="${s*0.02}" opacity="0.6"/>
+    <line x1="${s*0.22}" y1="${s*0.41}" x2="${s*0.78}" y2="${s*0.41}" stroke="${color}" stroke-width="${s*0.02}" opacity="0.5"/>
+    <line x1="${x1}" y1="${s*0.59}" x2="${x2}" y2="${s*0.59}" stroke="${color}" stroke-width="${s*0.02}" opacity="0.6"/>
+    <line x1="${s*0.22}" y1="${s*0.76}" x2="${s*0.78}" y2="${s*0.76}" stroke="${color}" stroke-width="${s*0.02}" opacity="0.5"/>
+  </svg>`;
+}
+
+// ─── RENDER ──────────────────────────────────────────────────
+function getOpts() {
+  return {
+    res: +document.getElementById('res').value,
+    bg:  document.getElementById('bg').value,
+    col: document.getElementById('col').value
+  };
+}
+
+function renderSVGtoCanvas(svgStr, canvas, bg, cb) {
+  const blob = new Blob([svgStr], {type:'image/svg+xml'});
+  const url  = URL.createObjectURL(blob);
+  const img  = new Image();
+  img.onload = () => {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    if (bg !== 'transparent') {
+      ctx.fillStyle = bg;
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    URL.revokeObjectURL(url);
+    if (cb) cb();
+  };
+  img.src = url;
+}
+
+function renderAll() {
+  const {res, bg, col} = getOpts();
+  const c1 = document.getElementById('c1');
+  const c2 = document.getElementById('c2');
+  c1.width = c1.height = res;
+  c2.width = c2.height = res;
+
+  // preview SVGs (small, 160px)
+  document.getElementById('wrap1').innerHTML = svgAtomo(col, 160);
+  document.getElementById('wrap2').innerHTML = svgDNA(col, 160);
+
+  renderSVGtoCanvas(svgAtomo(col, res), c1, bg);
+  renderSVGtoCanvas(svgDNA(col, res),  c2, bg);
+}
+
+function updRes() {
+  const v = document.getElementById('res').value;
+  document.getElementById('resVal').textContent = `${v} × ${v} px`;
+  renderAll();
+}
+
+function download(which) {
+  const {res, col} = getOpts();
+  const bg = document.getElementById('bg').value;
+  const names = ['diveup-atomo', 'diveup-dna'];
+  const canvases = [document.getElementById('c1'), document.getElementById('c2')];
+  const targets = which === 0 ? [0,1] : [which-1];
+
+  targets.forEach(i => {
+    const c = canvases[i];
+    c.width = c.height = res;
+    renderSVGtoCanvas(which === 0 ? [svgAtomo(col,res), svgDNA(col,res)][i]
+      : (i===0 ? svgAtomo(col,res) : svgDNA(col,res)), c, bg, () => {
+      const a = document.createElement('a');
+      a.href = c.toDataURL('image/png');
+      a.download = `${names[i]}-${res}px.png`;
+      a.click();
+    });
+  });
+}
+
+// init
+renderAll();
+</script>
+</body>
+</html>
