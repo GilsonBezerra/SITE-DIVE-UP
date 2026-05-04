@@ -1,0 +1,94 @@
+* {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      background: #050505;
+      color: #f2f2f2;
+      font-family: 'Barlow Condensed', sans-serif;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    /* glow background */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: #AAFF00;
+      filter: blur(200px);
+      opacity: .08;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 500px;
+      padding: 2rem;
+    }
+
+    .logo {
+      font-family: 'Black Ops One', sans-serif;
+      font-size: 2.2rem;
+      color: #AAFF00;
+      letter-spacing: .15em;
+      text-shadow: 0 0 25px rgba(170, 255, 0, .5);
+      margin-bottom: 1rem;
+    }
+
+    .subtitle {
+      font-size: .8rem;
+      letter-spacing: .3em;
+      color: rgba(255, 255, 255, .4);
+      margin-bottom: 2rem;
+    }
+
+    .image {
+      margin: 2rem 0;
+    }
+
+    .image img {
+      width: 220px;
+      max-width: 80%;
+      filter: drop-shadow(0 0 20px rgba(170, 255, 0, .4));
+      opacity: .95;
+    }
+
+    .title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: .5rem;
+      justify-self: center;
+    }
+
+    .text {
+      font-size: .95rem;
+      color: rgba(255, 255, 255, .6);
+      margin-bottom: 2rem;
+    }
+
+    /* botão opcional */
+    .btn {
+      display: inline-block;
+      padding: .8rem 1.5rem;
+      border-radius: 10px;
+      background: #AAFF00;
+      color: #050505;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-decoration: none;
+      transition: .2s;
+    }
+
+    .btn:hover {
+      background: #c8ff4d;
+      transform: translateY(-2px);
+    }
