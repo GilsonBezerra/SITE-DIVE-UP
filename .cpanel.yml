@@ -1,0 +1,5 @@
+deployment:
+  tasks:
+  - export DEPLOYPATH=/home/diveupc2dd55d1/public_html/
+  - /bin/cp -R ./* $DEPLOYPATH
+  - /bin/cp -R .[^.]* $DEPLOYPATH || true
